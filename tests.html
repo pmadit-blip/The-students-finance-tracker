@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finance Tracker Tests</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <header>
+    <h1>Finance Tracker Tests</h1>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Back to the tracker</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section aria-labelledby="tests-heading">
+      <h2 id="tests-heading">Validation and search checks</h2>
+      <p id="test-status" role="status" aria-live="polite">Running tests…</p>
+      <ul id="test-results"></ul>
+    </section>
+  </main>
+
+  <script type="module">
+    import {
+      validateDescription,
+      validateAmount,
+      validateDate,
+      validateCategory
+    } from './scripts/validators.js';
+    import {
+      compileRegex,
+      searchRecords
+    } from './scripts/search.js';
+
+    const output = document.getElementById('test-results');
+    const status = document.getElementById('test-status');
+    let passed = 0;
+    let failed = 0;
+
+    function test(name, assertion) {
+      const item = document.createElement('li');
+
+      try {
+        if (!assertion()) throw new Error('Assertion failed');
+        item.textContent = `PASS: ${name}`;
+        passed += 1;
+      } catch (error) {
+        item.textContent = `FAIL: ${name} (${error.message})`;
+        failed += 1;
+      }
+
+      output.append(item);
+    }
+
+    test('accepts a normal description', () =>
+      validateDescription('Lunch at cafeteria') === null);
+
+    test('rejects a description with leading whitespace', () =>
+      validateDescription(' Lunch') !== null);
+
+    test('rejects repeated consecutive words', () =>
+      validateDescription('coffee coffee') !== null);
+
+    test('accepts an amount with two decimal places', () =>
+      validateAmount('12.50') === null);
+
+    test('rejects an amount with too many decimal places', () =>
+      validateAmount('12.500') !== null);
+
+    test('accepts a YYYY-MM-DD date', () =>
+      validateDate('2025-09-29') === null);
+
+    test('rejects a date in the wrong format', () =>
+      validateDate('09/29/2025') !== null);
+
+    test('accepts a category with spaces and a hyphen', () =>
+      validateCategory('Books and Supplies') === null &&
+      validateCategory('Food-Drinks') === null);
+
+    test('rejects punctuation in a category', () =>
+      validateCategory('Food!') !== null);
+
+    test('compiles a valid regular expression', () =>
+      compileRegex('coffee|tea') instanceof RegExp);
+
+    test('returns null for an invalid regular expression', () =>
+      compileRegex('[') === null);
+
+    const records = [
+      {
+        description: 'Coffee with friends',
+        amount: 8.75,
+        category: 'Food',
+        date: '2025-09-28'
+      },
+      {
+        description: 'Bus pass',
+        amount: 45,
+        category: 'Transport',
+        date: '2025-09-20'
+      }
+    ];
+
+    test('search finds a matching description', () =>
+      searchRecords(records, 'coffee').length === 1);
+
+    test('search supports a back-reference pattern', () =>
+      searchRecords(
+        [{ description: 'the the repeated word', amount: 1, category: 'Other', date: '2025-09-01' }],
+        '\\b(\\w+)\\s+\\1\\b'
+      ).length === 1);
+
+    test('search returns no matches for invalid regex input', () =>
+      searchRecords(records, '[').length === 0);
+
+    status.textContent = `${passed} passed, ${failed} failed.`;
+  </script>
+</body>
+</html>
