@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Track student spending, budgets, and transactions.">
+  <title>Student Finance Tracker</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <script type="module" src="scripts/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header>
+    <h1>Student Finance Tracker</h1>
+    <p>A simple way to keep an eye on your spending.</p>
+    <nav aria-label="Main navigation">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#transactions">Transactions</a>
+      <a href="#settings">Settings</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section id="dashboard" aria-labelledby="dashboard-heading">
+      <h2 id="dashboard-heading">Dashboard</h2>
+      <dl>
+        <div>
+          <dt>Total transactions</dt>
+          <dd id="total-records">0</dd>
+        </div>
+        <div>
+          <dt>Total spending</dt>
+          <dd id="total-amount">$0.00</dd>
+        </div>
+        <div>
+          <dt>Top category</dt>
+          <dd id="top-category">None</dd>
+        </div>
+      </dl>
+      <p id="budget-message" aria-live="polite"></p>
+      <div id="spending-trend" aria-label="Spending trend for the last seven days"></div>
+    </section>
+
+    <section id="transactions" aria-labelledby="transactions-heading">
+      <h2 id="transactions-heading">Transactions</h2>
+
+      <form id="record-form">
+        <h3>Add or edit a transaction</h3>
+
+        <div>
+          <label for="description">Description</label>
+          <input id="description" name="description" type="text"
+                 required maxlength="120" autocomplete="off"
+                 aria-describedby="description-error">
+          <p id="description-error"></p>
+        </div>
+
+        <div>
+          <label for="amount">Amount</label>
+          <input id="amount" name="amount" type="number"
+                 required min="0" step="0.01" inputmode="decimal"
+                 aria-describedby="amount-error">
+          <p id="amount-error"></p>
+        </div>
+
+        <div>
+          <label for="category">Category</label>
+          <input id="category" name="category" type="text"
+                 required list="category-options" autocomplete="off"
+                 aria-describedby="category-error">
+          <datalist id="category-options">
+            <option value="Food"></option>
+            <option value="Books"></option>
+            <option value="Transport"></option>
+            <option value="Entertainment"></option>
+            <option value="Fees"></option>
+            <option value="Other"></option>
+          </datalist>
+          <p id="category-error"></p>
+        </div>
+
+        <div>
+          <label for="date">Date</label>
+          <input id="date" name="date" type="date" required
+                 aria-describedby="date-error">
+          <p id="date-error"></p>
+        </div>
+
+        <button type="submit">Add transaction</button>
+        <button id="cancel-edit-button" type="button" hidden>Cancel edit</button>
+      </form>
+
+      <div>
+        <label for="search-pattern">Search using a regular expression</label>
+        <input id="search-pattern" name="search-pattern" type="search"
+               aria-describedby="search-error"
+               placeholder="For example: coffee|tea">
+        <p id="search-error" aria-live="assertive"></p>
+
+        <label>
+          <input id="case-sensitive" type="checkbox">
+          Case-sensitive search
+        </label>
+      </div>
+
+      <div>
+        <label for="sort-by">Sort transactions</label>
+        <select id="sort-by">
+          <option value="date-desc">Date: newest first</option>
+          <option value="date-asc">Date: oldest first</option>
+          <option value="description-asc">Description: A to Z</option>
+          <option value="description-desc">Description: Z to A</option>
+          <option value="amount-asc">Amount: low to high</option>
+          <option value="amount-desc">Amount: high to low</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <caption>Your transactions</caption>
+          <thead>
+            <tr>
+              <th scope="col">Description</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Category</th>
+              <th scope="col">Date</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="records-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="settings" aria-labelledby="settings-heading">
+      <h2 id="settings-heading">Settings and data</h2>
+
+      <form id="settings-form">
+        <div>
+          <label for="budget">Budget cap</label>
+          <input id="budget" name="budget" type="number"
+                 min="0" step="0.01" value="500" required>
+        </div>
+
+        <div>
+          <label for="currency">Display currency</label>
+          <select id="currency" name="currency">
+            <option value="USD">US dollar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="KES">Kenyan shilling (KES)</option>
+          </select>
+        </div>
+
+        <button type="submit">Save settings</button>
+      </form>
+
+      <button id="export-button" type="button">Export transactions as JSON</button>
+      <div>
+        <label for="import-file">Import transactions from JSON</label>
+        <input id="import-file" name="import-file" type="file"
+               accept="application/json,.json">
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-heading">
+      <h2 id="about-heading">About</h2>
+      <p>This student project helps track spending and keep transactions organized.</p>
+      <p><a href="https://github.com/pmadit-blip">GitHub profile</a></p>
+      <p>Add your preferred contact email here.</p>
+    </section>
+
+    <p id="app-status" role="status" aria-live="polite"></p>
+  </main>
+
+  <footer>
+    <p>Student Finance Tracker</p>
+    <a href="tests.html">Run the validation tests</a>
+  </footer>
+</body>
+</html>
