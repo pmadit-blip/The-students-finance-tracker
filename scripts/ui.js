@@ -6,8 +6,7 @@ function appendHighlightedText(target, value, pattern) {
     return;
   }
 
-  const flags = `${pattern.flags.replace(/[gy]/g, '')}g`;
-  const regex = new RegExp(pattern.source, flags);
+  const regex = new RegExp(pattern.source, `${pattern.flags.replace(/[gy]/g, '')}g`);
   let lastIndex = 0;
   let match;
 
@@ -56,10 +55,14 @@ export function renderRecords(
 
     row.append(
       createCell('Description', record.description, pattern),
-      createCell('Amount', new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency
-      }).format(Number(record.amount)), pattern),
+      createCell(
+        'Amount',
+        new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency
+        }).format(Number(record.amount)),
+        pattern
+      ),
       createCell('Category', record.category, pattern),
       createCell('Date', record.date, pattern)
     );
@@ -108,41 +111,96 @@ export function renderStats(elements, records, budget = 500) {
   if (elements.totalRecords) {
     elements.totalRecords.textContent = String(records.length);
   }
+
+  const currency = elements.currency || 'USD';
+  const amountFormat = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency
+  });
+
   if (elements.totalAmount) {
-    elements.totalAmount.textContent = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: elements.currency || 'USD'
-    }).format(total);
+    elements.totalAmount.textContent = amountFormat.format(total);
   }
+
   if (elements.topCategory) {
     elements.topCategory.textContent = topCategory;
   }
 
   if (elements.budgetMessage) {
-    const remaining = Number(budget) - total;
+    const numericBudget = Number(budget);
+    const budgetAmount = Number.isFinite(numericBudget)
+      ? Math.max(numericBudget, 0)
+      : 0;
+    const remaining = budgetAmount - total;
     const exceeded = remaining < 0;
+    const scaleMaximum = Math.max(budgetAmount, total, 1);
 
+    elements.budgetMessage.classList.toggle('is-over-budget', exceeded);
+    elements.budgetMessage.classList.toggle('is-within-budget', !exceeded);
     elements.budgetMessage.setAttribute(
       'aria-live',
       exceeded ? 'assertive' : 'polite'
     );
     elements.budgetMessage.textContent = exceeded
-      ? `Budget exceeded by ${new Intl.NumberFormat(undefined, {
-          style: 'currency',
-          currency: elements.currency || 'USD'
-        }).format(Math.abs(remaining))}.`
-      : `${new Intl.NumberFormat(undefined, {
-          style: 'currency',
-          currency: elements.currency || 'USD'
-        }).format(remaining)} remaining in your budget.`;
+      ? `Budget exceeded by ${amountFormat.format(Math.abs(remaining))}.`
+      : `${amountFormat.format(remaining)} remaining in your budget.`;
+
+    let meter = elements.budgetMessage.parentElement.querySelector(
+      '.budget-meter'
+    );
+
+    if (!meter) {
+      meter = document.createElement('div');
+      meter.className = 'budget-meter';
+
+      const track = document.createElement('div');
+      track.className = 'budget-meter__track';
+      track.setAttribute('role', 'meter');
+
+      const fill = document.createElement('span');
+      fill.className = 'budget-meter__fill';
+
+      const marker = document.createElement('span');
+      marker.className = 'budget-meter__cap-marker';
+      marker.setAttribute('aria-hidden', 'true');
+
+      const label = document.createElement('p');
+      label.className = 'budget-meter__label';
+
+      track.append(fill, marker);
+      meter.append(track, label);
+      elements.budgetMessage.insertAdjacentElement('afterend', meter);
+    }
+
+    meter.classList.toggle('is-over-budget', exceeded);
+    meter.classList.toggle('is-within-budget', !exceeded);
+
+    const track = meter.querySelector('.budget-meter__track');
+    const fill = meter.querySelector('.budget-meter__fill');
+    const marker = meter.querySelector('.budget-meter__cap-marker');
+    const label = meter.querySelector('.budget-meter__label');
+
+    track.setAttribute('aria-label', 'Spending compared with budget cap');
+    track.setAttribute('aria-valuemin', '0');
+    track.setAttribute('aria-valuemax', String(scaleMaximum));
+    track.setAttribute('aria-valuenow', String(total));
+    track.setAttribute(
+      'aria-valuetext',
+      `${amountFormat.format(total)} spent; budget cap ${amountFormat.format(budgetAmount)}`
+    );
+
+    fill.style.width = `${Math.min((total / scaleMaximum) * 100, 100)}%`;
+    marker.style.left = `${Math.min((budgetAmount / scaleMaximum) * 100, 100)}%`;
+    label.textContent =
+      `${amountFormat.format(total)} spent of ${amountFormat.format(budgetAmount)} budget`;
   }
 
   if (elements.trend) {
-    renderSevenDayTrend(elements.trend, records);
+    renderSevenDayTrend(elements.trend, records, currency);
   }
 }
 
-function renderSevenDayTrend(container, records) {
+function renderSevenDayTrend(container, records, currency) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -166,11 +224,11 @@ function renderSevenDayTrend(container, records) {
   chart.setAttribute('aria-label', 'Spending over the last seven days');
 
   days.forEach((day, index) => {
-    const bar = document.createElement('span');
     const amount = totals[index];
     const label = new Intl.DateTimeFormat(undefined, {
       weekday: 'short'
     }).format(day);
+    const bar = document.createElement('span');
 
     bar.className = 'trend-chart__bar';
     bar.style.height = `${Math.max((amount / maxTotal) * 100, 4)}%`;
@@ -178,7 +236,7 @@ function renderSevenDayTrend(container, records) {
       'aria-label',
       `${label}: ${new Intl.NumberFormat(undefined, {
         style: 'currency',
-        currency: 'USD'
+        currency
       }).format(amount)}`
     );
     bar.title = `${label}: ${amount.toFixed(2)}`;
