@@ -68,7 +68,7 @@ export const importJSON = (file, onSuccess, onError) => {
         throw new Error('Invalid format: expected an array');
       }
 
-      const ids = new Set();
+      const ids = new Set(); new 
 
       data.forEach((record, index) => {
         const label = `Record ${index + 1}`;
@@ -83,7 +83,6 @@ export const importJSON = (file, onSuccess, onError) => {
           throw new Error(`Duplicate record id: ${record.id}`);
         }
         ids.add(record.id);
-
         if (
           typeof record.description !== 'string' ||
           typeof record.amount !== 'number' ||
@@ -97,7 +96,7 @@ export const importJSON = (file, onSuccess, onError) => {
         if (
           typeof record.createdAt !== 'string' ||
           Number.isNaN(Date.parse(record.createdAt)) ||
-          typeof record.updatedAt !== 'string' ||
+          typeof record.updatedAt !== 'string' |
           Number.isNaN(Date.parse(record.updatedAt))
         ) {
           throw new Error(`${label} has invalid timestamps`);
