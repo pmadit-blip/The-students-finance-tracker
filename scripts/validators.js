@@ -25,10 +25,10 @@ export function validateCategory(value) {
   if (!CATEGORY_RE.test(value)) return 'Category must contain only letters, spaces, or hyphens';
   return null;
 }
-export function validateRecord(record) {
+export function validateRecord (record) {
   return {
 	  description: validateDescription(record.description || ''),
-    amount: validateAmount(record.amount || ''),
+    amount: validateAmount(record.amount ?? ''),
     date: validateDate(record.date || ''),
     category: validateCategory(record.category || '')
   };
