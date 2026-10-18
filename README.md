@@ -2,6 +2,8 @@
 
 A responsive student finance tracker built with vanilla HTML, CSS and JavaScript ES modules. Use it to record transactions, review spending and keep an eye on a budget.
 
+**Live site:** [Open the Student Finance Tracker](https://pmadit-blip.github.io/The-students-finance-tracker/)
+
 **Repository:** [pmadit-blip/The-students-finance-tracker](https://github.com/pmadit-blip/The-students-finance-tracker)
 
 ## Features
