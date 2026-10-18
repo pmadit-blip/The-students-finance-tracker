@@ -10,11 +10,11 @@ A responsive student finance tracker built with vanilla HTML, CSS and JavaScript
 - Search descriptions, amounts, categories and dates with regular expressions.
 - Sort transactions by date, description, or amount.
 - View transaction totals, total spending, the top category and a seven-day spending chart. 
-- Set a budget cap and see remaining budget or overage.
-- Save transactions and settings in browser local storage.
-- Import and export transactions as JSON.
-- Choose a display currency. Currency selection changes the display format; it does not convert amounts using exchange rates.
-- Use the responsive layout with keyboard navigation, visible focus and live status messages.
+- Set a budget cap and see the remaining budget or overage.
+- Save the transactions and settings in browser local storage.
+- Import and export the transactions as JSON.
+- Choose a display currency. The currency selection changes the display format; it does not convert amounts using exchange rates.
+- Use the responsive layout with keyboard navigation, visible focus and the live status messages.
 
 ## Data model
 

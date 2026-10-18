@@ -2,3 +2,9 @@ node_modules/
 .DS_Store
 *.swp
 *.swo
+.omni/
+.claude/
+.github/
+.cursor/
+.kiro/
+.agents/
